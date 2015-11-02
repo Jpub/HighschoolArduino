@@ -1,7 +1,7 @@
   
-# 하이스쿨 아두이노
+# 아두이노를 활용한 고등학교 과학실험 하이스쿨 아두이노
   
- ![하이스쿨 아두이노 표지](http://image.yes24.com/momo/TopCate644/MidCate004/64332404.jpg)
+ ![아두이노를 활용한 고등학교 과학실험 하이스쿨 아두이노 표지](http://image.yes24.com/momo/TopCate644/MidCate004/64332404.jpg)
   
 **출판사** 제이펍  
 **저자명** SADA  
