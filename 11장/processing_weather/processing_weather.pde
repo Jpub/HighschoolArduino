@@ -54,7 +54,7 @@ String getMatchLine(String s) {
     if (line != null) {
       println(line);
       if(match(line, s) != null)
-        break;
+        return line;
     }
   }
 }
