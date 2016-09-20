@@ -12,57 +12,54 @@ int len;
 
 void setup() {
   size(500, 500);
-  serial = new Serial(this, "COM5", 9600);
-  thread("getSerialInput");
+  println(Serial.list());
+  serial = new Serial(this, Serial.list()[1], 9600);
   ellipseMode(CENTER);
   fill(255);
   stroke(0);
 }
 
-void getSerialInput() {
-  while(true) {
-    String humNtemp = getMatchLine("DHT22.*OK.*Humidity.*Temperature.*");
-    println("humidity & temperature read accept");
-    String artRobotWeather 
-        = getMatchLine("ArtRobot.*WindDirection.*WindSpeed.*Rain.*");
-    println("ArtRobot Info read accept");
-    
-    String[] humTempRawInfo = humNtemp.split(" ");
-    String s_humidity = humTempRawInfo[3];
-    String s_temperature = humTempRawInfo[6];
-    String[] windWaterRawInfo = artRobotWeather.split(" ");
-    String[] windDirections = windWaterRawInfo[6].split("/");
-    String s_windSpeed = windWaterRawInfo[8].split("\\(")[0];
-    String s_rain = windWaterRawInfo[10].split("\\(")[0];
-    
-    humidity = Float.parseFloat(s_humidity);
-    temperature = Float.parseFloat(s_temperature);
-    windDir = Float.parseFloat(windDirections[1]);
-    s_windDirection = windDirections[0];
-    windSpeed = Float.parseFloat(s_windSpeed);
-    rainGauge = Float.parseFloat(s_rain);
-
-    started = true;
-  }
-}
-
-String getMatchLine(String s) {
-  String line;
-  while(true) {
-    while(serial.available() <= 0);
-    line = serial.readStringUntil('\n');
-    if (line != null) {
-      println(line);
-      if(match(line, s) != null)
-        return line;
-    }
-  }
-}
 
 void draw() {
-  background(rainbow(temperature));
   
-  if (started) {
+    String humNtemp="", artRobotWeather="";
+    String tempString = "";
+    if (serial.available() > 0) {
+      tempString = serial.readStringUntil('\n');
+      if (tempString != null) {
+        println(tempString);
+        if(match(tempString, "DHT22.*OK.*Humidity.*Temperature.*") != null) {
+          humNtemp = tempString;
+          println("humidity & temperature read accept");
+        } else if (match(tempString, "ArtRobot.*WindDirection.*WindSpeed.*Rain.*") != null) {
+          artRobotWeather = tempString;
+          println("ArtRobot Info read accept");
+        }
+      }
+     
+    String[] humTempRawInfo = humNtemp.split(",");
+    if(humTempRawInfo.length == 6) {
+      String s_humidity = humTempRawInfo[3];
+      String s_temperature = humTempRawInfo[5];
+      humidity = Float.parseFloat(s_humidity);
+      temperature = Float.parseFloat(s_temperature);
+    }
+      String[] windWaterRawInfo = artRobotWeather.split(" ");
+    
+    if(windWaterRawInfo.length == 11) {
+      String[] windDirections = windWaterRawInfo[6].split("/");
+      String s_windSpeed = windWaterRawInfo[8].split("\\(")[0];
+      String s_rain = windWaterRawInfo[10].split("\\(")[0];
+      windDir = Float.parseFloat(windDirections[1]);
+      s_windDirection = windDirections[0];
+      windSpeed = Float.parseFloat(s_windSpeed);
+      rainGauge = Float.parseFloat(s_rain);
+    }
+      
+    }
+    
+    
+    background(rainbow(temperature));
     textSize(15);
     textAlign(RIGHT);
     text(     "humidity :",120,30);
@@ -91,7 +88,7 @@ void draw() {
       arc(0, len, 80, 80, 0, humidity / 100 * TWO_PI, PIE);
       drawFlag((int)windSpeed);
     popMatrix();
-  }
+  
 }
 
 color rainbow(float state) {
